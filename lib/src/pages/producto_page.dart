@@ -127,7 +127,7 @@ class _ProductoPageState extends State<ProductoPage> {
     });
 
     if (foto != null) {
-     producto.fotoUrl = await productoProvider.subirImagen(foto);
+      producto.fotoUrl = await productoProvider.subirImagen(foto);
     }
 
     if (producto.id == null) {
@@ -157,16 +157,19 @@ class _ProductoPageState extends State<ProductoPage> {
     if (producto.fotoUrl != null) {
       return FadeInImage(
         image: NetworkImage(producto.fotoUrl),
-        placeholder: AssetImage('assets/jar-loading-gif'),
+        placeholder: AssetImage('assets/jar-loading.gif'),
         height: 300.0,
         fit: BoxFit.contain,
       );
     } else {
-      return Image(
-        image: AssetImage(foto?.path ?? 'assets/no-image.png'),
-        height: 300.0,
-        fit: BoxFit.cover,
-      );
+      if (foto != null) {
+        return Image.file(
+          foto,
+          height: 300.0,
+          fit: BoxFit.cover,
+        );
+      }
+      return Image.asset('assets/no-image.png');
     }
   }
 
