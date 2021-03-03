@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:form_validation/src/models/producto_model.dart';
 import 'package:form_validation/src/providers/productos_provider.dart';
 import 'package:form_validation/src/utils/utils.dart' as utils;
+import 'package:image_picker/image_picker.dart';
 
 class ProductoPage extends StatefulWidget {
   @override
@@ -15,6 +18,7 @@ class _ProductoPageState extends State<ProductoPage> {
   ProductoModel producto = new ProductoModel();
   final productoProvider = new ProductosProvider();
   bool _guardando = false;
+  File foto;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,7 @@ class _ProductoPageState extends State<ProductoPage> {
             key: formKey,
             child: Column(
               children: <Widget>[
+                _mostrarFoto(),
                 _crearNombre(),
                 _crearPrecio(),
                 _crearDisponible(),
@@ -112,7 +117,7 @@ class _ProductoPageState extends State<ProductoPage> {
     );
   }
 
-  void _submit() {
+  void _submit() async {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
@@ -120,6 +125,10 @@ class _ProductoPageState extends State<ProductoPage> {
     setState(() {
       _guardando = true;
     });
+
+    if (foto != null) {
+     producto.fotoUrl = await productoProvider.subirImagen(foto);
+    }
 
     if (producto.id == null) {
       productoProvider.crearProducto(producto);
@@ -142,5 +151,46 @@ class _ProductoPageState extends State<ProductoPage> {
     );
 
     scaffoldKey.currentState.showSnackBar(snackbar);
+  }
+
+  Widget _mostrarFoto() {
+    if (producto.fotoUrl != null) {
+      return FadeInImage(
+        image: NetworkImage(producto.fotoUrl),
+        placeholder: AssetImage('assets/jar-loading-gif'),
+        height: 300.0,
+        fit: BoxFit.contain,
+      );
+    } else {
+      return Image(
+        image: AssetImage(foto?.path ?? 'assets/no-image.png'),
+        height: 300.0,
+        fit: BoxFit.cover,
+      );
+    }
+  }
+
+  _seleccionarFoto() async {
+    _procesarImagen(ImageSource.gallery);
+  }
+
+  _tomarFoto() async {
+    _procesarImagen(ImageSource.camera);
+  }
+
+  _procesarImagen(ImageSource origen) async {
+    final picker = ImagePicker();
+
+    final pickedFile = await picker.getImage(source: origen);
+
+    setState(() {
+      if (pickedFile != null) {
+        foto = File(pickedFile.path);
+
+        if (foto != null) {
+          producto.fotoUrl = null;
+        }
+      } else {}
+    });
   }
 }
