@@ -184,7 +184,7 @@ class LoginPage extends StatelessWidget {
                 height: 10.0,
                 width: double.infinity,
               ),
-              Text('Santiago Alvarez',
+              Text('ProductosApp',
                   style: TextStyle(color: Colors.white, fontSize: 25.0)),
             ],
           ),
